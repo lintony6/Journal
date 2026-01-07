@@ -1,8 +1,8 @@
-# Reflekt Journal App
+# Journal App
 
-A beautiful, secure personal journal application with:
+A personal journal application with:
 - 🔒 Username/password authentication with email verification
-- 📝 Rich journal entries with tags
+- 📝 Journal entries with tags
 - 🔍 Full-text search
 - ☁️ Serverless backend (AWS Lambda + MongoDB Atlas)
 - 🌐 Static frontend (GitHub Pages)
@@ -22,15 +22,6 @@ A beautiful, secure personal journal application with:
                                                  └─────────────────┘
 ```
 
-## Tech Stack
-
-- **Frontend**: HTML, CSS, JavaScript (vanilla)
-- **Backend**: Node.js 18.x
-- **Database**: MongoDB Atlas (free tier)
-- **Auth**: JWT + bcrypt
-- **Email**: AWS SES
-- **Hosting**: GitHub Pages (frontend) + AWS Lambda (backend)
-
 ## Setup Instructions
 
 ### 1. MongoDB Atlas Setup
@@ -43,23 +34,17 @@ A beautiful, secure personal journal application with:
 
 ### 2. AWS Lambda Setup
 
-#### Install Dependencies & Deploy
+#### Deploy
 
 ```bash
 cd backend
-
-# Install dependencies
 npm install
-
-# Make deploy script executable
 chmod +x deploy.sh
-
-# Create deployment package
 ./deploy.sh
 
 # Create Lambda function (replace YOUR_ACCOUNT_ID)
 aws lambda create-function \
-  --function-name reflekt-journal-api \
+  --function-name journal-api \
   --runtime nodejs18.x \
   --handler index.handler \
   --zip-file fileb://lambda_function.zip \
@@ -73,7 +58,7 @@ aws lambda create-function \
 | Variable | Description |
 |----------|-------------|
 | `MONGODB_URI` | Your MongoDB Atlas connection string |
-| `DATABASE_NAME` | `reflekt_journal` |
+| `DATABASE_NAME` | `journal` |
 | `JWT_SECRET` | A secure random string (32+ characters) |
 | `SES_SENDER_EMAIL` | Your verified SES email address |
 | `AWS_REGION` | Your AWS region (e.g., `us-east-1`) |
@@ -120,46 +105,11 @@ git init
 git add .
 git commit -m "Initial commit"
 git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/reflekt-journal.git
+git remote add origin https://github.com/YOUR_USERNAME/journal.git
 git push -u origin main
 ```
 
 Then in GitHub: Settings → Pages → Deploy from `main` branch.
-
-## Local Development
-
-### Frontend
-```bash
-cd frontend
-python -m http.server 8000
-# Open http://localhost:8000
-```
-
-### Backend
-```bash
-cd backend
-npm install
-node index.js
-```
-
-## API Endpoints
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/auth/register` | No | Register new user |
-| POST | `/auth/verify` | No | Verify email with code |
-| POST | `/auth/resend-verification` | No | Resend verification code |
-| POST | `/auth/login` | No | Login and get JWT |
-| GET | `/entries` | Yes | Get all entries |
-| POST | `/entries` | Yes | Create entry |
-| GET | `/entries/{id}` | Yes | Get single entry |
-| PUT | `/entries/{id}` | Yes | Update entry |
-| DELETE | `/entries/{id}` | Yes | Delete entry |
-| GET | `/entries/search?q=` | Yes | Search entries |
-| GET | `/tags` | Yes | Get all tags |
-| POST | `/tags` | Yes | Create tag |
-| PUT | `/tags/{id}` | Yes | Update tag |
-| DELETE | `/tags/{id}` | Yes | Delete tag |
 
 ## Free Tier Costs
 
