@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Journal - A beautiful, secure journal app for capturing your thoughts and memories">
+    <title>Journal | Your Personal Journal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+
+<body class="auth-page">
+    <div class="auth-container">
+        <!-- Left Panel - Branding -->
+        <div class="auth-branding">
+            <div class="branding-content">
+                <div class="logo">
+                    <span class="logo-icon">📔</span>
+                    <span class="logo-text">Journal</span>
+                </div>
+                <h1 class="branding-headline">Capture your thoughts,<br>one moment at a time</h1>
+                <p class="branding-tagline">A private, secure space for your daily reflections, ideas, and memories.</p>
+                <div class="branding-features">
+                    <div class="feature">
+                        <span class="feature-icon">🔒</span>
+                        <span>End-to-end secure</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🏷️</span>
+                        <span>Organize with tags</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🔍</span>
+                        <span>Instant search</span>
+                    </div>
+                </div>
+            </div>
+            <div class="branding-decoration">
+                <div class="floating-shape shape-1"></div>
+                <div class="floating-shape shape-2"></div>
+                <div class="floating-shape shape-3"></div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Auth Forms -->
+        <div class="auth-forms">
+            <div class="form-wrapper">
+                <!-- Login Form -->
+                <div id="login-form" class="auth-form active">
+                    <h2>Welcome back</h2>
+                    <p class="form-subtitle">Sign in to continue your journaling journey</p>
+
+                    <form id="login" autocomplete="on">
+                        <div class="input-group">
+                            <label for="login-username">Username</label>
+                            <input type="text" id="login-username" name="username" placeholder="Enter your username"
+                                required autocomplete="username">
+                        </div>
+                        <div class="input-group">
+                            <label for="login-password">Password</label>
+                            <div class="password-input">
+                                <input type="password" id="login-password" name="password"
+                                    placeholder="Enter your password" required autocomplete="current-password">
+                                <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+                                    <span class="eye-icon">👁️</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-options">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="remember-me">
+                                <span class="checkmark"></span>
+                                Remember me
+                            </label>
+                            <a href="#" class="forgot-link">Forgot password?</a>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <span>Sign In</span>
+                            <span class="btn-loader hidden"></span>
+                        </button>
+                    </form>
+
+                    <div class="form-footer">
+                        <p>Don't have an account? <a href="#" id="show-register">Create one</a></p>
+                    </div>
+                </div>
+
+                <!-- Register Form -->
+                <div id="register-form" class="auth-form">
+                    <h2>Create your account</h2>
+                    <p class="form-subtitle">Start your journaling journey today</p>
+
+                    <form id="register" autocomplete="on">
+                        <div class="input-group">
+                            <label for="register-username">Username</label>
+                            <input type="text" id="register-username" name="username" placeholder="Choose a username"
+                                required minlength="3" autocomplete="username">
+                            <span class="input-hint">At least 3 characters</span>
+                        </div>
+                        <div class="input-group">
+                            <label for="register-email">Email</label>
+                            <input type="email" id="register-email" name="email" placeholder="Enter your email" required
+                                autocomplete="email">
+                            <span class="input-hint">We'll send a verification code</span>
+                        </div>
+                        <div class="input-group">
+                            <label for="register-password">Password</label>
+                            <div class="password-input">
+                                <input type="password" id="register-password" name="password"
+                                    placeholder="Create a password" required minlength="8" autocomplete="new-password">
+                                <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+                                    <span class="eye-icon">👁️</span>
+                                </button>
+                            </div>
+                            <div class="password-strength">
+                                <div class="strength-bar"><span></span></div>
+                                <span class="strength-text">Password strength</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="register-confirm">Confirm Password</label>
+                            <div class="password-input">
+                                <input type="password" id="register-confirm" name="confirm-password"
+                                    placeholder="Confirm your password" required autocomplete="new-password">
+                                <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+                                    <span class="eye-icon">👁️</span>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <span>Create Account</span>
+                            <span class="btn-loader hidden"></span>
+                        </button>
+                    </form>
+
+                    <div class="form-footer">
+                        <p>Already have an account? <a href="#" id="show-login">Sign in</a></p>
+                    </div>
+                </div>
+
+                <!-- Email Verification Form -->
+                <div id="verify-form" class="auth-form">
+                    <div class="verify-icon">📧</div>
+                    <h2>Verify your email</h2>
+                    <p class="form-subtitle">We've sent a 6-digit code to <span id="verify-email"></span></p>
+
+                    <form id="verify" autocomplete="off">
+                        <div class="code-inputs">
+                            <input type="text" maxlength="1" class="code-input" data-index="0" autocomplete="off">
+                            <input type="text" maxlength="1" class="code-input" data-index="1" autocomplete="off">
+                            <input type="text" maxlength="1" class="code-input" data-index="2" autocomplete="off">
+                            <input type="text" maxlength="1" class="code-input" data-index="3" autocomplete="off">
+                            <input type="text" maxlength="1" class="code-input" data-index="4" autocomplete="off">
+                            <input type="text" maxlength="1" class="code-input" data-index="5" autocomplete="off">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <span>Verify Email</span>
+                            <span class="btn-loader hidden"></span>
+                        </button>
+                    </form>
+
+                    <div class="form-footer">
+                        <p>Didn't receive the code? <a href="#" id="resend-code">Resend</a></p>
+                        <p class="resend-timer hidden">Resend available in <span id="timer">60</span>s</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+
+</html>
