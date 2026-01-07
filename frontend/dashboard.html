@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Journal Dashboard - Manage your journal entries">
+    <title>Dashboard | Journal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body class="dashboard-page">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">📔</span>
+                <span class="logo-text">Journal</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+                <span></span>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="nav-item active" data-view="entries">
+                    <span class="nav-icon">📝</span>
+                    <span class="nav-text">All Entries</span>
+                </li>
+                <li class="nav-item" data-view="favorites">
+                    <span class="nav-icon">⭐</span>
+                    <span class="nav-text">Favorites</span>
+                </li>
+                <li class="nav-item" data-view="tags">
+                    <span class="nav-icon">🏷️</span>
+                    <span class="nav-text">Tags</span>
+                </li>
+                <li class="nav-item" data-view="calendar">
+                    <span class="nav-icon">📅</span>
+                    <span class="nav-text">Calendar</span>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-tags" id="sidebar-tags">
+            <h4 class="sidebar-section-title">Your Tags</h4>
+            <ul class="tag-list" id="tag-list">
+                <!-- Tags populated by JS -->
+            </ul>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="user-info" id="user-info">
+                <div class="user-avatar">
+                    <span id="user-initial">U</span>
+                </div>
+                <div class="user-details">
+                    <span class="user-name" id="user-name">User</span>
+                    <span class="user-email" id="user-email">user@email.com</span>
+                </div>
+            </div>
+            <button class="btn-icon" id="logout-btn" title="Sign out">
+                <span>🚪</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="search-input" placeholder="Search entries, tags..." autocomplete="off">
+                <kbd class="search-shortcut">⌘K</kbd>
+            </div>
+
+            <div class="top-bar-actions">
+                <button class="btn btn-primary" id="new-entry-btn">
+                    <span class="btn-icon">✨</span>
+                    <span>New Entry</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Entries View -->
+            <section class="view-section active" id="entries-view">
+                <div class="view-header">
+                    <div class="view-title">
+                        <h1>Your Journal</h1>
+                        <p class="entry-count"><span id="entry-count">0</span> entries</p>
+                    </div>
+                    <div class="view-controls">
+                        <div class="sort-dropdown">
+                            <button class="dropdown-btn" id="sort-btn">
+                                <span>Newest first</span>
+                                <span class="dropdown-arrow">▾</span>
+                            </button>
+                            <ul class="dropdown-menu" id="sort-menu">
+                                <li data-sort="newest" class="active">Newest first</li>
+                                <li data-sort="oldest">Oldest first</li>
+                                <li data-sort="updated">Recently updated</li>
+                            </ul>
+                        </div>
+                        <div class="view-toggle">
+                            <button class="toggle-btn active" data-view="grid" title="Grid view">
+                                <span>▦</span>
+                            </button>
+                            <button class="toggle-btn" data-view="list" title="List view">
+                                <span>☰</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Entries Grid -->
+                <div class="entries-container grid-view" id="entries-container">
+                    <!-- Entry cards populated by JS -->
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state hidden" id="empty-state">
+                    <div class="empty-illustration">📔</div>
+                    <h3>No entries yet</h3>
+                    <p>Start capturing your thoughts by creating your first journal entry.</p>
+                    <button class="btn btn-primary" id="empty-new-entry">
+                        <span class="btn-icon">✨</span>
+                        <span>Create First Entry</span>
+                    </button>
+                </div>
+
+                <!-- Loading State -->
+                <div class="loading-state" id="loading-state">
+                    <div class="loader"></div>
+                    <p>Loading your entries...</p>
+                </div>
+            </section>
+
+            <!-- Tags View -->
+            <section class="view-section" id="tags-view">
+                <div class="view-header">
+                    <div class="view-title">
+                        <h1>Tags</h1>
+                        <p class="tag-count"><span id="tag-count">0</span> tags</p>
+                    </div>
+                    <button class="btn btn-secondary" id="new-tag-btn">
+                        <span class="btn-icon">+</span>
+                        <span>New Tag</span>
+                    </button>
+                </div>
+
+                <div class="tags-grid" id="tags-grid">
+                    <!-- Tags populated by JS -->
+                </div>
+            </section>
+
+            <!-- Calendar View -->
+            <section class="view-section" id="calendar-view">
+                <div class="view-header">
+                    <div class="view-title">
+                        <h1>Calendar</h1>
+                    </div>
+                    <div class="calendar-nav">
+                        <button class="btn-icon" id="prev-month">←</button>
+                        <span id="current-month">January 2026</span>
+                        <button class="btn-icon" id="next-month">→</button>
+                    </div>
+                </div>
+
+                <div class="calendar-container" id="calendar-container">
+                    <!-- Calendar populated by JS -->
+                </div>
+            </section>
+
+            <!-- Favorites View -->
+            <section class="view-section" id="favorites-view">
+                <div class="view-header">
+                    <div class="view-title">
+                        <h1>Favorites</h1>
+                        <p class="favorite-count"><span id="favorite-count">0</span> favorites</p>
+                    </div>
+                </div>
+
+                <div class="entries-container grid-view" id="favorites-container">
+                    <!-- Favorite entries populated by JS -->
+                </div>
+
+                <div class="empty-state hidden" id="favorites-empty">
+                    <div class="empty-illustration">⭐</div>
+                    <h3>No favorites yet</h3>
+                    <p>Mark entries as favorites to quickly access them here.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Entry Editor Modal -->
+    <div class="modal" id="entry-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content editor-modal">
+            <div class="modal-header">
+                <h2 id="modal-title">New Entry</h2>
+                <button class="modal-close" id="modal-close" aria-label="Close">×</button>
+            </div>
+            <form id="entry-form">
+                <div class="editor-container">
+                    <input type="text" id="entry-title" placeholder="Entry title..." class="entry-title-input" required>
+
+                    <div class="editor-toolbar">
+                        <button type="button" class="toolbar-btn" data-format="bold" title="Bold">B</button>
+                        <button type="button" class="toolbar-btn" data-format="italic"
+                            title="Italic"><em>I</em></button>
+                        <button type="button" class="toolbar-btn" data-format="heading" title="Heading">H</button>
+                        <span class="toolbar-divider"></span>
+                        <button type="button" class="toolbar-btn" data-format="list" title="List">•</button>
+                        <button type="button" class="toolbar-btn" data-format="quote" title="Quote">"</button>
+                    </div>
+
+                    <textarea id="entry-content" placeholder="Start writing your thoughts..."
+                        class="entry-content-input" required></textarea>
+
+                    <div class="entry-meta">
+                        <div class="entry-tags-input">
+                            <label>Tags</label>
+                            <div class="tags-input-container">
+                                <div class="selected-tags" id="selected-tags"></div>
+                                <input type="text" id="tag-input" placeholder="Add tags..." autocomplete="off">
+                            </div>
+                            <div class="tag-suggestions hidden" id="tag-suggestions"></div>
+                        </div>
+
+                        <div class="entry-options">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="entry-favorite">
+                                <span class="checkmark"></span>
+                                Mark as favorite
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" id="cancel-entry">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span id="save-btn-text">Save Entry</span>
+                        <span class="btn-loader hidden"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="delete-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content confirm-modal">
+            <div class="confirm-icon">⚠️</div>
+            <h3>Delete Entry?</h3>
+            <p>This action cannot be undone. The entry will be permanently deleted.</p>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" id="cancel-delete">Cancel</button>
+                <button class="btn btn-danger" id="confirm-delete">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div class="modal" id="search-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content search-modal">
+            <div class="search-header">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="modal-search-input" placeholder="Search entries, tags..." autofocus>
+                <kbd>ESC</kbd>
+            </div>
+            <div class="search-results" id="search-results">
+                <div class="search-category" id="search-entries">
+                    <h4>Entries</h4>
+                    <ul></ul>
+                </div>
+                <div class="search-category" id="search-tags-results">
+                    <h4>Tags</h4>
+                    <ul></ul>
+                </div>
+            </div>
+            <div class="search-empty hidden" id="search-empty">
+                <p>No results found</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tag Create/Edit Modal -->
+    <div class="modal" id="tag-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content tag-editor-modal">
+            <div class="modal-header">
+                <h2 id="tag-modal-title">Create Tag</h2>
+                <button class="modal-close" aria-label="Close">×</button>
+            </div>
+            <form id="tag-form">
+                <div class="input-group">
+                    <label for="tag-name">Tag Name</label>
+                    <input type="text" id="tag-name" placeholder="Enter tag name" required>
+                </div>
+                <div class="input-group">
+                    <label>Tag Color</label>
+                    <div class="color-picker" id="color-picker">
+                        <button type="button" class="color-option active" data-color="#6366f1"
+                            style="background: #6366f1"></button>
+                        <button type="button" class="color-option" data-color="#8b5cf6"
+                            style="background: #8b5cf6"></button>
+                        <button type="button" class="color-option" data-color="#ec4899"
+                            style="background: #ec4899"></button>
+                        <button type="button" class="color-option" data-color="#f43f5e"
+                            style="background: #f43f5e"></button>
+                        <button type="button" class="color-option" data-color="#f97316"
+                            style="background: #f97316"></button>
+                        <button type="button" class="color-option" data-color="#eab308"
+                            style="background: #eab308"></button>
+                        <button type="button" class="color-option" data-color="#22c55e"
+                            style="background: #22c55e"></button>
+                        <button type="button" class="color-option" data-color="#14b8a6"
+                            style="background: #14b8a6"></button>
+                        <button type="button" class="color-option" data-color="#06b6d4"
+                            style="background: #06b6d4"></button>
+                        <button type="button" class="color-option" data-color="#3b82f6"
+                            style="background: #3b82f6"></button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost modal-close">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Tag</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>
