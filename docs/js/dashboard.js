@@ -239,6 +239,11 @@ function renderSidebarTags() {
             <span>${escapeHtml(tag.name)}</span>
         </li>
     `).join('');
+
+    // Add click handlers to filter by tag
+    list.querySelectorAll('li').forEach(item => {
+        item.addEventListener('click', () => filterByTag(item.dataset.id));
+    });
 }
 
 function renderTagsView() {
@@ -257,6 +262,63 @@ function renderTagsView() {
             </div>
         `;
     }).join('');
+
+    // Add click handlers to filter by tag
+    grid.querySelectorAll('.tag-card').forEach(card => {
+        card.addEventListener('click', () => filterByTag(card.dataset.id));
+    });
+}
+
+// Filter entries by tag and switch to entries view
+function filterByTag(tagId) {
+    const tag = tags.find(t => t._id === tagId);
+    const filteredEntries = entries.filter(e => (e.tags || []).includes(tagId));
+
+    // Switch to entries view
+    switchView('entries');
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.querySelector('.nav-item[data-view="entries"]').classList.add('active');
+
+    // Render filtered entries
+    const container = document.getElementById('entries-container');
+    const emptyState = document.getElementById('empty-state');
+
+    if (filteredEntries.length === 0) {
+        container.innerHTML = '';
+        emptyState?.classList.remove('hidden');
+        document.getElementById('entry-count').textContent = 0;
+        showToast(`No entries with tag "${tag?.name}"`, 'info');
+        return;
+    }
+
+    emptyState?.classList.add('hidden');
+    document.getElementById('entry-count').textContent = `${filteredEntries.length} (filtered by: ${tag?.name})`;
+
+    const sorted = sortEntries([...filteredEntries]);
+    container.innerHTML = sorted.map(entry => createEntryCard(entry)).join('');
+
+    // Re-add event listeners
+    container.querySelectorAll('.entry-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (!e.target.closest('.entry-action')) {
+                editEntry(card.dataset.id);
+            }
+        });
+    });
+
+    container.querySelectorAll('.entry-action.edit').forEach(btn => {
+        btn.addEventListener('click', () => editEntry(btn.dataset.id));
+    });
+
+    container.querySelectorAll('.entry-action.delete').forEach(btn => {
+        btn.addEventListener('click', () => confirmDelete(btn.dataset.id));
+    });
+
+    container.querySelectorAll('.entry-action.favorite').forEach(btn => {
+        btn.addEventListener('click', () => toggleFavorite(btn.dataset.id));
+    });
+
+    showToast(`Showing entries with tag "${tag?.name}"`, 'success');
 }
 
 // Calendar
