@@ -199,4 +199,90 @@ async function login(event) {
     }
 }
 
-module.exports = { register, verifyEmail, resendVerification, login };
+// Forgot password - send reset code
+async function forgotPassword(event) {
+    try {
+        const body = parseBody(event);
+        const email = (body.email || '').trim().toLowerCase();
+
+        if (!email) {
+            return errorResponse('Email required');
+        }
+
+        const users = await getCollection('users');
+        const user = await users.findOne({ email });
+
+        if (!user) {
+            // Don't reveal if email exists or not
+            return successResponse({ message: 'If this email exists, a reset code has been sent' });
+        }
+
+        // Generate reset code
+        const resetCode = generateVerificationCode();
+        const codeExpires = new Date(Date.now() + 15 * 60 * 1000);
+
+        await users.updateOne(
+            { _id: user._id },
+            { $set: { reset_code: resetCode, reset_expires: codeExpires } }
+        );
+
+        await sendVerificationEmail(email, resetCode);
+
+        return successResponse({ message: 'If this email exists, a reset code has been sent' });
+
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        return errorResponse('Failed to send reset code', 500);
+    }
+}
+
+// Reset password with code
+async function resetPassword(event) {
+    try {
+        const body = parseBody(event);
+        const email = (body.email || '').trim().toLowerCase();
+        const code = (body.code || '').trim();
+        const newPassword = body.password || '';
+
+        if (!email || !code || !newPassword) {
+            return errorResponse('Email, code, and new password required');
+        }
+
+        if (newPassword.length < 8) {
+            return errorResponse('Password must be at least 8 characters');
+        }
+
+        const users = await getCollection('users');
+        const user = await users.findOne({ email });
+
+        if (!user) {
+            return errorResponse('Invalid email or code');
+        }
+        if (user.reset_code !== code) {
+            return errorResponse('Invalid reset code');
+        }
+        if (new Date() > user.reset_expires) {
+            return errorResponse('Reset code expired');
+        }
+
+        // Update password
+        await users.updateOne(
+            { _id: user._id },
+            {
+                $set: {
+                    password_hash: await hashPassword(newPassword),
+                    updated_at: new Date()
+                },
+                $unset: { reset_code: '', reset_expires: '' }
+            }
+        );
+
+        return successResponse({ message: 'Password reset successfully' });
+
+    } catch (error) {
+        console.error('Reset password error:', error);
+        return errorResponse('Failed to reset password', 500);
+    }
+}
+
+module.exports = { register, verifyEmail, resendVerification, login, forgotPassword, resetPassword };

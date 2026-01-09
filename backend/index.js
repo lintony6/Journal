@@ -5,7 +5,7 @@
 const config = require('./config');
 const { getUserFromToken } = require('./auth');
 const { successResponse, errorResponse } = require('./helpers');
-const { register, verifyEmail, resendVerification, login } = require('./handlers/authHandlers');
+const { register, verifyEmail, resendVerification, login, forgotPassword, resetPassword } = require('./handlers/authHandlers');
 const { getEntries, getEntry, createEntry, updateEntry, deleteEntry, searchEntries } = require('./handlers/entryHandlers');
 const { getTags, createTag, updateTag, deleteTag } = require('./handlers/tagHandlers');
 
@@ -46,6 +46,8 @@ const routes = {
     'POST /auth/verify': verifyEmail,
     'POST /auth/resend-verification': resendVerification,
     'POST /auth/login': login,
+    'POST /auth/forgot-password': forgotPassword,
+    'POST /auth/reset-password': resetPassword,
 
     // Entry routes (auth required)
     'GET /entries': requireAuth(getEntries),

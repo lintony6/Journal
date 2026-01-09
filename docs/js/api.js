@@ -89,6 +89,20 @@ class API {
         this.clearToken();
     }
 
+    async forgotPassword(email) {
+        return this.request('/auth/forgot-password', {
+            method: 'POST',
+            body: JSON.stringify({ email })
+        });
+    }
+
+    async resetPassword(email, code, password) {
+        return this.request('/auth/reset-password', {
+            method: 'POST',
+            body: JSON.stringify({ email, code, password })
+        });
+    }
+
     // Entries endpoints
     async getEntries(params = {}) {
         const query = new URLSearchParams(params).toString();

@@ -43,17 +43,40 @@ function initFormSwitching() {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const verifyForm = document.getElementById('verify-form');
+    const forgotForm = document.getElementById('forgot-form');
+    const resetForm = document.getElementById('reset-form');
+
+    function hideAllForms() {
+        loginForm?.classList.remove('active');
+        registerForm?.classList.remove('active');
+        verifyForm?.classList.remove('active');
+        forgotForm?.classList.remove('active');
+        resetForm?.classList.remove('active');
+    }
 
     document.getElementById('show-register')?.addEventListener('click', (e) => {
         e.preventDefault();
-        loginForm.classList.remove('active');
+        hideAllForms();
         registerForm.classList.add('active');
     });
 
     document.getElementById('show-login')?.addEventListener('click', (e) => {
         e.preventDefault();
-        registerForm.classList.remove('active');
-        verifyForm.classList.remove('active');
+        hideAllForms();
+        loginForm.classList.add('active');
+    });
+
+    // Forgot password link
+    document.querySelector('.forgot-link')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        hideAllForms();
+        forgotForm.classList.add('active');
+    });
+
+    // Back to login from forgot password
+    document.getElementById('back-to-login')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        hideAllForms();
         loginForm.classList.add('active');
     });
 }
@@ -112,15 +135,24 @@ function initPasswordStrength() {
 
 // Verification code inputs
 function initCodeInputs() {
-    const inputs = document.querySelectorAll('.code-input');
+    // Handle both verify and reset code inputs
+    setupCodeInputGroup('#verify-form .code-input');
+    setupCodeInputGroup('.reset-code');
+}
+
+function setupCodeInputGroup(selector) {
+    const inputs = document.querySelectorAll(selector);
+    if (!inputs.length) return;
 
     inputs.forEach((input, index) => {
         input.addEventListener('input', (e) => {
             const value = e.target.value.replace(/\D/g, '');
             e.target.value = value;
 
-            if (value && index < inputs.length - 1) {
-                inputs[index + 1].focus();
+            // Move to next input
+            const groupInputs = document.querySelectorAll(selector);
+            if (value && index < groupInputs.length - 1) {
+                groupInputs[index + 1].focus();
             }
 
             input.classList.toggle('filled', value !== '');
@@ -128,20 +160,22 @@ function initCodeInputs() {
 
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && !input.value && index > 0) {
-                inputs[index - 1].focus();
+                const groupInputs = document.querySelectorAll(selector);
+                groupInputs[index - 1].focus();
             }
         });
 
         input.addEventListener('paste', (e) => {
             e.preventDefault();
             const paste = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+            const groupInputs = document.querySelectorAll(selector);
             paste.split('').forEach((char, i) => {
-                if (inputs[i]) {
-                    inputs[i].value = char;
-                    inputs[i].classList.add('filled');
+                if (groupInputs[i]) {
+                    groupInputs[i].value = char;
+                    groupInputs[i].classList.add('filled');
                 }
             });
-            if (paste.length === 6) inputs[5].focus();
+            if (paste.length === 6) groupInputs[5]?.focus();
         });
     });
 
@@ -249,7 +283,7 @@ function initForms() {
         const loader = btn.querySelector('.btn-loader');
         const text = btn.querySelector('span:not(.btn-loader)');
 
-        const inputs = document.querySelectorAll('.code-input');
+        const inputs = document.querySelectorAll('#verify-form .code-input');
         const code = Array.from(inputs).map(i => i.value).join('');
 
         if (code.length !== 6) {
@@ -272,6 +306,93 @@ function initForms() {
         } finally {
             loader.classList.add('hidden');
             text.classList.remove('hidden');
+        }
+    });
+
+    // Forgot Password
+    document.getElementById('forgot')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        const loader = btn.querySelector('.btn-loader');
+        const text = btn.querySelector('span:not(.btn-loader)');
+
+        try {
+            loader.classList.remove('hidden');
+            text.classList.add('hidden');
+
+            const email = document.getElementById('forgot-email').value;
+            await api.forgotPassword(email);
+
+            pendingEmail = email;
+            document.getElementById('reset-email').textContent = email;
+
+            showToast('Reset code sent! Check your email.', 'success');
+
+            // Switch to reset form
+            document.getElementById('forgot-form').classList.remove('active');
+            document.getElementById('reset-form').classList.add('active');
+            document.querySelector('.reset-code').focus();
+        } catch (error) {
+            showToast(error.message, 'error');
+        } finally {
+            loader.classList.add('hidden');
+            text.classList.remove('hidden');
+        }
+    });
+
+    // Reset Password
+    document.getElementById('reset')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        const loader = btn.querySelector('.btn-loader');
+        const text = btn.querySelector('span:not(.btn-loader)');
+
+        const inputs = document.querySelectorAll('.reset-code');
+        const code = Array.from(inputs).map(i => i.value).join('');
+        const password = document.getElementById('reset-password').value;
+        const confirm = document.getElementById('reset-confirm').value;
+
+        if (code.length !== 6) {
+            showToast('Please enter the 6-digit code', 'error');
+            return;
+        }
+
+        if (password !== confirm) {
+            showToast('Passwords do not match', 'error');
+            return;
+        }
+
+        if (password.length < 8) {
+            showToast('Password must be at least 8 characters', 'error');
+            return;
+        }
+
+        try {
+            loader.classList.remove('hidden');
+            text.classList.add('hidden');
+
+            await api.resetPassword(pendingEmail, code, password);
+            showToast('Password reset successfully! You can now log in.', 'success');
+
+            // Switch to login
+            document.getElementById('reset-form').classList.remove('active');
+            document.getElementById('login-form').classList.add('active');
+        } catch (error) {
+            showToast(error.message, 'error');
+        } finally {
+            loader.classList.add('hidden');
+            text.classList.remove('hidden');
+        }
+    });
+
+    // Resend reset code
+    document.getElementById('resend-reset-code')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+            await api.forgotPassword(pendingEmail);
+            showToast('Reset code resent!', 'success');
+        } catch (error) {
+            showToast(error.message, 'error');
         }
     });
 }
