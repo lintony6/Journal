@@ -385,8 +385,8 @@ function openNewEntryModal() {
     document.getElementById('modal-title').textContent = 'New Entry';
     document.getElementById('save-btn-text').textContent = 'Save Entry';
     document.getElementById('entry-form').reset();
-    document.getElementById('selected-tags').innerHTML = '';
     selectedTags = [];
+    renderTagSelector();
     openModal(document.getElementById('entry-modal'));
 }
 
@@ -402,33 +402,49 @@ function editEntry(id) {
     document.getElementById('entry-favorite').checked = entry.is_favorite;
 
     selectedTags = [...(entry.tags || [])];
-    renderSelectedTags();
+    renderTagSelector();
 
     openModal(document.getElementById('entry-modal'));
 }
 
-function renderSelectedTags() {
-    const container = document.getElementById('selected-tags');
-    container.innerHTML = selectedTags.map(tagId => {
-        const tag = tags.find(t => t._id === tagId);
-        return tag ? `
-            <span class="selected-tag" style="background: ${tag.color}20; color: ${tag.color}">
-                ${escapeHtml(tag.name)}
-                <button type="button" onclick="removeSelectedTag('${tagId}')">×</button>
-            </span>
-        ` : '';
-    }).join('');
-}
+function renderTagSelector() {
+    const container = document.getElementById('tag-selector');
 
-window.removeSelectedTag = function (tagId) {
-    selectedTags = selectedTags.filter(id => id !== tagId);
-    renderSelectedTags();
-};
+    if (tags.length === 0) {
+        container.innerHTML = '<span class="tag-selector-empty">No tags created yet. Create tags in the Tags section.</span>';
+        return;
+    }
+
+    container.innerHTML = tags.map(tag => {
+        const isSelected = selectedTags.includes(tag._id);
+        return `
+            <span class="tag-selector-item ${isSelected ? 'selected' : ''}" 
+                  data-id="${tag._id}"
+                  style="background: ${tag.color}30; color: ${tag.color}">
+                ${escapeHtml(tag.name)}
+                <span class="tag-check">✓</span>
+            </span>
+        `;
+    }).join('');
+
+    // Add click handlers
+    container.querySelectorAll('.tag-selector-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const tagId = item.dataset.id;
+            if (selectedTags.includes(tagId)) {
+                selectedTags = selectedTags.filter(id => id !== tagId);
+                item.classList.remove('selected');
+            } else {
+                selectedTags.push(tagId);
+                item.classList.add('selected');
+            }
+        });
+    });
+}
 
 // Entry form
 function initEntryForm() {
     const form = document.getElementById('entry-form');
-    const tagInput = document.getElementById('tag-input');
 
     form?.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -457,42 +473,6 @@ function initEntryForm() {
         } catch (error) {
             showToast(error.message, 'error');
         }
-    });
-
-    tagInput?.addEventListener('input', () => {
-        const query = tagInput.value.toLowerCase();
-        const suggestions = document.getElementById('tag-suggestions');
-
-        if (!query) {
-            suggestions.classList.add('hidden');
-            return;
-        }
-
-        const matches = tags.filter(t =>
-            t.name.toLowerCase().includes(query) && !selectedTags.includes(t._id)
-        );
-
-        if (matches.length === 0) {
-            suggestions.classList.add('hidden');
-            return;
-        }
-
-        suggestions.classList.remove('hidden');
-        suggestions.innerHTML = matches.map(t => `
-            <div class="tag-suggestion" data-id="${t._id}">
-                <span class="tag-dot" style="background: ${t.color}"></span>
-                ${escapeHtml(t.name)}
-            </div>
-        `).join('');
-
-        suggestions.querySelectorAll('.tag-suggestion').forEach(s => {
-            s.addEventListener('click', () => {
-                selectedTags.push(s.dataset.id);
-                renderSelectedTags();
-                tagInput.value = '';
-                suggestions.classList.add('hidden');
-            });
-        });
     });
 }
 
