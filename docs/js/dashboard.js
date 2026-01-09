@@ -182,9 +182,9 @@ function createEntryCard(entry) {
             <p class="entry-card-preview">${escapeHtml(entry.content.substring(0, 150))}...</p>
             <div class="entry-card-tags">${tagsHtml}</div>
             <div class="entry-card-actions">
-                <button class="entry-action edit" data-id="${entry._id}" title="Edit">✏️</button>
-                <button class="entry-action favorite" data-id="${entry._id}" title="Favorite">${entry.is_favorite ? '⭐' : '☆'}</button>
-                <button class="entry-action delete" data-id="${entry._id}" title="Delete">🗑️</button>
+                <button class="entry-action edit" data-id="${entry._id}">Edit</button>
+                <button class="entry-action favorite" data-id="${entry._id}">${entry.is_favorite ? 'Unfavorite' : 'Favorite'}</button>
+                <button class="entry-action delete" data-id="${entry._id}">Delete</button>
             </div>
         </article>
     `;
