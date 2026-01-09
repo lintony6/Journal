@@ -287,7 +287,6 @@ function filterByTag(tagId) {
         container.innerHTML = '';
         emptyState?.classList.remove('hidden');
         document.getElementById('entry-count').textContent = 0;
-        showToast(`No entries with tag "${tag?.name}"`, 'info');
         return;
     }
 
@@ -317,8 +316,6 @@ function filterByTag(tagId) {
     container.querySelectorAll('.entry-action.favorite').forEach(btn => {
         btn.addEventListener('click', () => toggleFavorite(btn.dataset.id));
     });
-
-    showToast(`Showing entries with tag "${tag?.name}"`, 'success');
 }
 
 // Calendar
