@@ -1,58 +1,58 @@
-// Email utilities using Resend
+// Email utilities using Brevo (formerly Sendinblue)
 const config = require('./config');
 
 async function sendVerificationEmail(toEmail, code) {
     const htmlBody = `
     <html>
-    <head>
-        <style>
-            body { font-family: 'Inter', Arial, sans-serif; background: #0f0f23; color: #e4e4e7; }
-            .container { max-width: 500px; margin: 40px auto; padding: 40px; background: #1a1a2e; border-radius: 16px; }
-            .logo { font-size: 24px; font-weight: bold; color: #6366f1; margin-bottom: 24px; }
-            .code { font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #6366f1; 
-                     background: rgba(99, 102, 241, 0.1); padding: 16px 24px; border-radius: 12px; 
-                     display: inline-block; margin: 24px 0; }
-            p { color: #a1a1aa; line-height: 1.6; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="logo">📔 Journal</div>
-            <h2>Verify your email</h2>
-            <p>Welcome to Journal! Use the code below to verify your email address:</p>
-            <div class="code">${code}</div>
-            <p>This code expires in 15 minutes.</p>
-            <p>If you didn't create an account, you can safely ignore this email.</p>
+    <body style="font-family: Arial, sans-serif; background: #0f0f23; color: #e4e4e7; padding: 40px;">
+        <div style="max-width: 500px; margin: 0 auto; background: #1a1a2e; padding: 40px; border-radius: 16px;">
+            <h1 style="color: #6366f1;">📔 Journal</h1>
+            <h2 style="color: #e4e4e7;">Verify your email</h2>
+            <p style="color: #a1a1aa;">Welcome to Journal! Use the code below to verify your email address:</p>
+            <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #6366f1; background: rgba(99, 102, 241, 0.1); padding: 16px 24px; border-radius: 12px; display: inline-block; margin: 24px 0;">
+                ${code}
+            </div>
+            <p style="color: #a1a1aa;">This code expires in 15 minutes.</p>
+            <p style="color: #71717a;">If you didn't create an account, you can safely ignore this email.</p>
         </div>
     </body>
     </html>
     `;
 
+    console.log('Attempting to send email to:', toEmail);
+    console.log('API Key present:', !!config.BREVO_API_KEY);
+
     try {
-        const response = await fetch('https://api.resend.com/emails', {
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${config.RESEND_API_KEY}`,
-                'Content-Type': 'application/json'
+                'api-key': config.BREVO_API_KEY,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
             body: JSON.stringify({
-                from: 'Journal <onboarding@resend.dev>',
-                to: toEmail,
+                sender: {
+                    name: 'Journal',
+                    email: config.BREVO_SENDER_EMAIL
+                },
+                to: [{ email: toEmail }],
                 subject: 'Verify your Journal account',
-                html: htmlBody
+                htmlContent: htmlBody
             })
         });
 
+        const responseData = await response.json();
+        console.log('Brevo response:', JSON.stringify(responseData));
+
         if (!response.ok) {
-            const error = await response.json();
-            console.error('Resend error:', error);
+            console.error('Brevo error:', responseData);
             return false;
         }
 
-        console.log('Verification email sent to:', toEmail);
+        console.log('Verification email sent successfully to:', toEmail);
         return true;
     } catch (error) {
-        console.error('Email send error:', error.message);
+        console.error('Email send error:', error);
         return false;
     }
 }

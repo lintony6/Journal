@@ -55,8 +55,12 @@ async function register(event) {
 
         const result = await users.insertOne(user);
 
-        // Send verification email via Resend
-        await sendVerificationEmail(email, verificationCode);
+        // Send verification email via Brevo
+        const emailSent = await sendVerificationEmail(email, verificationCode);
+
+        if (!emailSent) {
+            console.warn('Failed to send verification email, but user created');
+        }
 
         return successResponse({
             message: 'Account created. Please check your email for verification code.',

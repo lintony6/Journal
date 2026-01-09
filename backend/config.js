@@ -8,8 +8,9 @@ module.exports = {
     JWT_SECRET: process.env.JWT_SECRET,
     JWT_EXPIRY: '24h',
 
-    // Resend Email Configuration
-    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    // Brevo Email Configuration
+    BREVO_API_KEY: process.env.BREVO_API_KEY,
+    BREVO_SENDER_EMAIL: process.env.BREVO_SENDER_EMAIL,
 
     // CORS Configuration
     CORS_ORIGINS: process.env.CORS_ORIGINS || '*'

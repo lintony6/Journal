@@ -15,6 +15,7 @@ zip -r lambda_function.zip \
     config.js \
     database.js \
     auth.js \
+    email.js \
     helpers.js \
     handlers/ \
     node_modules/ \
